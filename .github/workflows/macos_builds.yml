@@ -4,6 +4,7 @@ on:
     secrets:
       GAME_MODULE_DEPLOY_KEY:
         required: false
+  workflow_dispatch:
 
 # Global Settings
 env:
@@ -31,6 +32,8 @@ jobs:
             target: template_release
             scons-flags: debug_symbols=no
             bin: ./bin/godot.macos.template_release.universal
+    env:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
     steps:
       - name: Checkout
@@ -39,11 +42,11 @@ jobs:
           submodules: recursive
 
       - name: Clone private module repository
-        if: ${{ secrets.GAME_MODULE_DEPLOY_KEY != '' }}
+        if: env.GAME_MODULE_DEPLOY_KEY != ''
         uses: actions/checkout@v7
         with:
           repository: waiwaic/game
-          ssh-key: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
+          ssh-key: ${{ env.GAME_MODULE_DEPLOY_KEY }}
           path: modules/game
           submodules: recursive
 
