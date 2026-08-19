@@ -6,9 +6,10 @@ on:
         description: A list of changed files, pre-filtered for parsing by clangd-tidy.
         required: true
         type: string
-    secrets:
-      GAME_MODULE_DEPLOY_KEY:
+      game-module-deploy-key:
+        description: 'Deploy key for private game module'
         required: false
+        type: string
 
   workflow_dispatch:
 
@@ -128,11 +129,11 @@ jobs:
           submodules: recursive
 
       - name: Clone private module repository
-        if: ${{ secrets.GAME_MODULE_DEPLOY_KEY != '' }}
+        if: ${{ inputs.game-module-deploy-key != '' }}
         uses: actions/checkout@v7
         with:
           repository: waiwaic/game
-          ssh-key: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
+          ssh-key: ${{ inputs.game-module-deploy-key }}
           path: modules/game
           submodules: recursive
 
