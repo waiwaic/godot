@@ -63,15 +63,12 @@ jobs:
 
       - name: Clone private module repository
         if: ${{ secrets.GAME_MODULE_DEPLOY_KEY != '' }}
-        run: |
-          # Setup SSH key for private repo access
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GAME_MODULE_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          
-          # Clone the private repository into modules/game
-          git clone git@github.com:waiwaic/game.git modules/game
+        uses: actions/checkout@v7
+        with:
+          repository: waiwaic/game
+          ssh-key: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
+          path: modules/game
+          submodules: recursive
 
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
