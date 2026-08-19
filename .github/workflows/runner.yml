@@ -4,14 +4,6 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
-    inputs:
-      game-module-deploy-key:
-        description: 'Deploy key for private game module'
-        required: false
-        type: string
-    secrets:
-      GAME_MODULE_DEPLOY_KEY:
-        required: false
 
 concurrency:
   group: ${{ github.workflow }}|${{ github.ref_name }}
@@ -34,16 +26,15 @@ jobs:
     uses: ./.github/workflows/android_builds.yml
     secrets:
       SERVICE_ACCOUNT_KEY: ${{ secrets.SERVICE_ACCOUNT_KEY }}
-    with:
-      game-module-deploy-key: ${{ github.event.inputs.game-module-deploy-key || secrets.GAME_MODULE_DEPLOY_KEY }}
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   ios-build:
     name: 🍏 iOS
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/ios_builds.yml
-    with:
-      game-module-deploy-key: ${{ github.event.inputs.game-module-deploy-key || secrets.GAME_MODULE_DEPLOY_KEY }}
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   linux-build:
     name: 🐧 Linux
@@ -52,28 +43,29 @@ jobs:
     uses: ./.github/workflows/linux_builds.yml
     with:
       changed-files: ${{ needs.static-checks.outputs.changed-files }}
-      game-module-deploy-key: ${{ github.event.inputs.game-module-deploy-key || secrets.GAME_MODULE_DEPLOY_KEY }}
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   macos-build:
     name: 🍎 macOS
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/macos_builds.yml
-    with:
-      game-module-deploy-key: ${{ github.event.inputs.game-module-deploy-key || secrets.GAME_MODULE_DEPLOY_KEY }}
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   windows-build:
     name: 🏁 Windows
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/windows_builds.yml
-    with:
-      game-module-deploy-key: ${{ github.event.inputs.game-module-deploy-key || secrets.GAME_MODULE_DEPLOY_KEY }}
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   web-build:
     name: 🌐 Web
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/web_builds.yml
-    with:
-      game-module-deploy-key: ${{ github.event.inputs.game-module-deploy-key || secrets.GAME_MODULE_DEPLOY_KEY }}
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
