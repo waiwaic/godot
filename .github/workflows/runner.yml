@@ -28,6 +28,8 @@ jobs:
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/ios_builds.yml
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   linux-build:
     name: 🐧 Linux
@@ -36,21 +38,29 @@ jobs:
     uses: ./.github/workflows/linux_builds.yml
     with:
       changed-files: ${{ needs.static-checks.outputs.changed-files }}
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   macos-build:
     name: 🍎 macOS
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/macos_builds.yml
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   windows-build:
     name: 🏁 Windows
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/windows_builds.yml
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
   web-build:
     name: 🌐 Web
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/web_builds.yml
+    secrets:
+      GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}

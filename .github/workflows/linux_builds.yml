@@ -6,6 +6,10 @@ on:
         description: A list of changed files, pre-filtered for parsing by clangd-tidy.
         required: true
         type: string
+    secrets:
+      GAME_MODULE_DEPLOY_KEY:
+        required: false
+
   workflow_dispatch:
 
 # Global Settings

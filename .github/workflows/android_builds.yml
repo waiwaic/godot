@@ -4,6 +4,8 @@ on:
     secrets:
       SERVICE_ACCOUNT_KEY:
         required: true
+      GAME_MODULE_DEPLOY_KEY:
+        required: false
 
   workflow_dispatch:
 

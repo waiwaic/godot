@@ -1,6 +1,10 @@
 name: 🍏 iOS Builds
 on:
   workflow_call:
+    secrets:
+      GAME_MODULE_DEPLOY_KEY:
+        required: false
+
   workflow_dispatch:
 
 # Global Settings
