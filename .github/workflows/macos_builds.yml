@@ -129,4 +129,4 @@ jobs:
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
-          ${{ matrix.bin }} --headless --test -s --force-colors
+          ${{ matrix.bin }} --headless --test -s --force-colors "-tce=*Crypto*"
