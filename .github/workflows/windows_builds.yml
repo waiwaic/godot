@@ -107,8 +107,14 @@ jobs:
       - name: Download Direct3D 12 SDK components
         shell: sh
         id: d3d12-sdk
+        # ASan builds must skip D3D12: the Mesa NIR prebuilt has no MSVC-ASan
+        # (.san) variant, so linking fails with LNK1181. Matrix jobs that set
+        # d3d12=no in their scons-flags force this step to report "no".
         run: |
-          if python ./misc/scripts/install_d3d12_sdk_windows.py; then
+          if echo "${{ matrix.scons-flags }}" | grep -q "d3d12=no"; then
+            echo "D3D12_ENABLED=no (forced by matrix: ASan has no NIR .san prebuilt)"
+            echo "D3D12_ENABLED=no" >> "$GITHUB_OUTPUT"
+          elif python ./misc/scripts/install_d3d12_sdk_windows.py; then
             echo "D3D12_ENABLED=yes" >> "$GITHUB_OUTPUT"
           else
             echo "::warning::Windows: Direct3D 12 SDK installation failed, building without Direct3D 12 support."
@@ -119,8 +125,13 @@ jobs:
       - name: Download pre-built ANGLE
         shell: sh
         id: angle-sdk
+        # Same .san-variant limitation as D3D12/NIR above: skip when the
+        # matrix job forces angle=no (ASan has no libANGLE .san prebuilt).
         run: |
-          if python ./misc/scripts/install_angle.py; then
+          if echo "${{ matrix.scons-flags }}" | grep -q "angle=no"; then
+            echo "ANGLE_ENABLED=no"
+            echo "ANGLE_ENABLED=no" >> "$GITHUB_OUTPUT"
+          elif python ./misc/scripts/install_angle.py; then
             echo "ANGLE_ENABLED=yes" >> "$GITHUB_OUTPUT"
           else
             echo "::warning::ANGLE SDK installation failed, building without ANGLE support."
