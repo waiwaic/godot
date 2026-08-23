@@ -77,7 +77,8 @@ jobs:
               use_asan=yes
               use_ubsan=yes
               linker=lld
-            bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.san
+            # .llvm suffix: use_llvm=yes appends it to the binary name.
+            bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.llvm.san
             proj-test: true
             free-space: true
 
