@@ -7,11 +7,6 @@ on:
         required: false
         type: string
         default: ''
-      game-ref:
-        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
-        required: false
-        type: string
-        default: ''
       changed-files:
         description: A list of changed files, pre-filtered for parsing by clangd-tidy.
         required: true
@@ -21,11 +16,6 @@ on:
         required: false
   workflow_dispatch:
     inputs:
-      game-ref:
-        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
-        required: false
-        type: string
-        default: ''
       game-ref:
         description: Branch/SHA of waiwaic/game to check out (empty = default branch).
         required: false
