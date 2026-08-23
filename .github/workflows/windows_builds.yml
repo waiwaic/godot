@@ -54,9 +54,13 @@ jobs:
             cache-name: windows-template-gcc
             # MinGW takes MUCH longer to compile; save time by only targeting Template.
             target: template_release
-            scons-flags: use_mingw=yes
+            scons-flags: >-
+              use_mingw=yes
+              use_asan=yes
             bin: ./bin/godot.windows.template_release.x86_64.console.exe
             compiler: gcc
+            test-filter: "-tc=*MapPipelineE2E*"
+            env-extra: "ASAN_OPTIONS=detect_leaks=0:halt_on_error=1"
     env:
       GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
@@ -149,7 +153,9 @@ jobs:
           name: ${{ matrix.cache-name }}
 
       - name: Unit tests
+        env:
+          ASAN_OPTIONS: ${{ matrix.env-extra }}
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
-          ${{ matrix.bin }} --headless --test -s --force-colors "-tc=*MapPipelineE2E*"
+          ${{ matrix.bin }} --headless --test -s --force-colors ${{ matrix.test-filter }} "-tc=*MapPipelineE2E*"
