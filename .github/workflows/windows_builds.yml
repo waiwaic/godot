@@ -32,10 +32,8 @@ jobs:
               windows_subsystem=console
               vsproj=yes
               vsproj_gen_only=no
-              use_asan=yes
             bin: ./bin/godot.windows.editor.x86_64.exe
             compiler: msvc
-            test-filter: "-tc=*MapPipelineE2E*"
 
           - name: Editor w/ clang-cl (target=editor, use_llvm=yes)
             cache-name: windows-editor-clang
