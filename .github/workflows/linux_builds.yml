@@ -78,6 +78,9 @@ jobs:
             # Test our oldest supported SCons/Python versions on one arbitrary editor build.
             legacy-scons: true
             free-space: true
+            # Isolate MapPipelineE2E: it crashes on MSVC/clang-cl (not gcc), so
+            # ASan on this job pinpoints the underlying stack/heap overflow.
+            test-filter: "-tc=*MapPipelineE2E*"
 
           - name: Editor with ThreadSanitizer (target=editor, dev_build=yes, use_tsan=yes, use_llvm=yes, linker=lld)
             cache-name: linux-editor-thread-sanitizer
@@ -252,7 +255,7 @@ jobs:
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
-          ${{ matrix.bin }} --headless --test --force-colors
+          ${{ matrix.bin }} --headless --test --force-colors ${{ matrix.test-filter }}
 
       - name: .NET source generators tests
         if: matrix.build-mono
