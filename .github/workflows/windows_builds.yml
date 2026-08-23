@@ -26,12 +26,13 @@ jobs:
       matrix:
         include:
           - name: Editor (target=editor)
-            cache-name: windows-editor
+            cache-name: windows-editor-asan
             target: editor
             scons-flags: >-
               windows_subsystem=console
               vsproj=yes
               vsproj_gen_only=no
+              use_asan=yes
             bin: ./bin/godot.windows.editor.x86_64.exe
             compiler: msvc
 
@@ -54,13 +55,9 @@ jobs:
             cache-name: windows-template-gcc
             # MinGW takes MUCH longer to compile; save time by only targeting Template.
             target: template_release
-            scons-flags: >-
-              use_mingw=yes
-              use_asan=yes
+            scons-flags: use_mingw=yes
             bin: ./bin/godot.windows.template_release.x86_64.console.exe
             compiler: gcc
-            test-filter: "-tc=*MapPipelineE2E*"
-            env-extra: "ASAN_OPTIONS=detect_leaks=0:halt_on_error=1"
     env:
       GAME_MODULE_DEPLOY_KEY: ${{ secrets.GAME_MODULE_DEPLOY_KEY }}
 
