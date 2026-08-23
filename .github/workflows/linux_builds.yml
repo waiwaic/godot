@@ -60,10 +60,12 @@ jobs:
             godot-cpp: true
             clangd-tidy: true
 
-          - name: Editor with doubles and GCC sanitizers (target=editor, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, linker=mold)
+          - name: Editor with doubles and GCC sanitizers (target=editor, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, linker=lld)
             cache-name: linux-editor-double-sanitizers
             target: editor
             # Debug symbols disabled as they're huge on this build and we hit the 14 GB limit for runners.
+            # linker=lld not mold: the ASan+double+SCU binary exceeds mold's
+            # default PC32 relocation range (R_X86_64_PC32 out of range).
             scons-flags: >-
               dev_build=yes
               scu_build=yes
@@ -71,24 +73,25 @@ jobs:
               precision=double
               use_asan=yes
               use_ubsan=yes
-              linker=mold
+              linker=lld
             bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.san
             proj-test: true
             free-space: true
 
-          - name: Editor with clang MSan (target=editor, dev_build=yes, use_msan=yes, use_llvm=yes, linker=lld)
-            cache-name: linux-editor-llvm-msan
-            target: editor
-            scons-flags: >-
-              dev_build=yes
-              use_msan=yes
-              use_llvm=yes
-              linker=lld
-            bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
-            # MapPipelineE2E crashes only on MSVC/clang (gcc/MinGW pass; ASan clean;
-            # lldb makes it pass) = uninitialized-memory read, which ASan does not
-            # detect. MSan pinpoints it.
-            test-filter: "-tc=*MapPipelineE2E*"
+          # MSan job disabled: with libstdc++ (uninstrumented), every STL
+          # access reports use-of-uninitialized-value (6800+ false positives
+          # in doctest setup alone). Proper MSan requires -stdlib=libc++
+          # plus an MSan-instrumented libc++ to produce meaningful results.
+          # - name: Editor with clang MSan (target=editor, dev_build=yes, use_msan=yes, use_llvm=yes, linker=lld)
+          #   cache-name: linux-editor-llvm-msan
+          #   target: editor
+          #   scons-flags: >-
+          #     dev_build=yes
+          #     use_msan=yes
+          #     use_llvm=yes
+          #     linker=lld
+          #   bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
+          #   test-filter: "-tc=*MapPipelineE2E*"
 
           - name: Editor with ThreadSanitizer (target=editor, dev_build=yes, use_tsan=yes, use_llvm=yes, linker=lld)
             cache-name: linux-editor-thread-sanitizer
