@@ -1,10 +1,22 @@
 name: 🍏 iOS Builds
 on:
   workflow_call:
+    inputs:
+      game-ref:
+        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
+        required: false
+        type: string
+        default: ''
     secrets:
       GAME_MODULE_DEPLOY_KEY:
         required: false
   workflow_dispatch:
+    inputs:
+      game-ref:
+        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
+        required: false
+        type: string
+        default: ''
 
 # Global Settings
 env:
@@ -33,6 +45,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: waiwaic/game
+          ref: ${{ inputs.game-ref }}
           ssh-key: ${{ env.GAME_MODULE_DEPLOY_KEY }}
           path: modules/game
           submodules: recursive
