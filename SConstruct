@@ -919,6 +919,11 @@ else:
     # of our supported Visual Studio versions.
     env.Prepend(CFLAGS=["/std:c17"])
     env.Prepend(CXXFLAGS=["/std:c++17"])
+    # MSVC links with a 1 MiB default stack; the game module's map-pipeline
+    # unit tests (deep recursion / large stack frames) overflow it and die
+    # with SIGSEGV on Windows while Linux (8 MiB default) passes. Match the
+    # Linux stack size so behaviour is consistent across platforms.
+    env.Append(LINKFLAGS=["/STACK:8388608"])
     # MSVC is non-conforming with the C++ standard by default, so we enable more conformance.
     # Note that this is still not complete conformance, as certain Windows-related headers
     # don't compile under complete conformance.
