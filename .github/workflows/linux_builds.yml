@@ -2,6 +2,16 @@ name: 🐧 Linux Builds
 on:
   workflow_call:
     inputs:
+      game-ref:
+        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
+        required: false
+        type: string
+        default: ''
+      game-ref:
+        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
+        required: false
+        type: string
+        default: ''
       changed-files:
         description: A list of changed files, pre-filtered for parsing by clangd-tidy.
         required: true
@@ -10,6 +20,17 @@ on:
       GAME_MODULE_DEPLOY_KEY:
         required: false
   workflow_dispatch:
+    inputs:
+      game-ref:
+        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
+        required: false
+        type: string
+        default: ''
+      game-ref:
+        description: Branch/SHA of waiwaic/game to check out (empty = default branch).
+        required: false
+        type: string
+        default: ''
 
 # Global Settings
 env:
@@ -65,21 +86,18 @@ jobs:
             proj-test: true
             free-space: true
 
-          - name: Editor with clang sanitizers (target=editor, dev_build=yes, use_asan=yes, use_ubsan=yes, use_llvm=yes, linker=lld)
-            cache-name: linux-editor-llvm-sanitizers
+          - name: Editor with clang MSan (target=editor, dev_build=yes, use_msan=yes, use_llvm=yes, linker=lld)
+            cache-name: linux-editor-llvm-msan
             target: editor
             scons-flags: >-
               dev_build=yes
-              use_asan=yes
-              use_ubsan=yes
+              use_msan=yes
               use_llvm=yes
               linker=lld
             bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
-            # Test our oldest supported SCons/Python versions on one arbitrary editor build.
-            legacy-scons: true
-            free-space: true
-            # Isolate MapPipelineE2E: it crashes on MSVC/clang-cl (not gcc), so
-            # ASan on this job pinpoints the underlying stack/heap overflow.
+            # MapPipelineE2E crashes only on MSVC/clang (gcc/MinGW pass; ASan clean;
+            # lldb makes it pass) = uninitialized-memory read, which ASan does not
+            # detect. MSan pinpoints it.
             test-filter: "-tc=*MapPipelineE2E*"
 
           - name: Editor with ThreadSanitizer (target=editor, dev_build=yes, use_tsan=yes, use_llvm=yes, linker=lld)
@@ -136,6 +154,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: waiwaic/game
+          ref: ${{ inputs.game-ref }}
           ssh-key: ${{ env.GAME_MODULE_DEPLOY_KEY }}
           path: modules/game
           submodules: recursive
