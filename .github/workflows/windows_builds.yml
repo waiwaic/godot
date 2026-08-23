@@ -37,15 +37,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor (target=editor)
+          - name: Editor (target=editor, ASan)
             cache-name: windows-editor-asan
             target: editor
+            # d3d12=no: the Mesa NIR prebuilt has no MSVC-ASan (.san) variant,
+            # so linking with use_asan=yes + d3d12 fails with LNK1181
+            # libNIR.windows.x86_64.san.lib. Headless tests don't need D3D12.
             scons-flags: >-
               windows_subsystem=console
               vsproj=yes
               vsproj_gen_only=no
               use_asan=yes
               debug_symbols=yes
+              d3d12=no
+              angle=no
             bin: ./bin/godot.windows.editor.x86_64.exe
             compiler: msvc
 
