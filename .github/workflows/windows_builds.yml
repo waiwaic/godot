@@ -33,6 +33,7 @@ jobs:
               vsproj=yes
               vsproj_gen_only=no
               use_asan=yes
+              debug_symbols=yes
             bin: ./bin/godot.windows.editor.x86_64.exe
             compiler: msvc
 
