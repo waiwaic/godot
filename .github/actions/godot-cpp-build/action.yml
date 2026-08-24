@@ -45,5 +45,8 @@ runs:
       # limit while keeping the full build (and thus full compatibility
       # validation) intact.
       run: |
-        ln -sfn "$PWD/godot-cpp" /gc
-        scons --directory=/gc/test "gdextension_dir=/gc" ${{ inputs.scons-flags }}
+        # / is not writable on runners; /tmp is. A short checkout path shortens
+        # every object path in the ar argv below MAX_ARG_STRLEN.
+        mkdir -p /tmp/gc
+        ln -sfn "$PWD/godot-cpp" /tmp/gp
+        scons --directory=/tmp/gp/test "gdextension_dir=/tmp/gp" ${{ inputs.scons-flags }}
