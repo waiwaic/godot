@@ -31,7 +31,12 @@ runs:
 
     - name: Extract API
       shell: sh
-      run: ${{ inputs.bin }} --headless --dump-gdextension-interface --dump-extension-api
+      run: |
+        ${{ inputs.bin }} --headless --dump-gdextension-interface --dump-extension-api
+        # The scons invocation runs from the short symlink path (/tmp/gp), so
+        # relative lookups for these files resolve inside godot-cpp. Provide
+        # them there too.
+        cp extension_api.json gdextension_interface.h godot-cpp/
 
     - name: SCons Build
       shell: sh
