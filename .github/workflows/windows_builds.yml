@@ -180,7 +180,14 @@ jobs:
         with:
           name: ${{ matrix.cache-name }}
 
+      # MSVC ASan executables cannot RUN on GitHub runners: the ASan dynamic
+      # runtime fails interceptor initialization during process attach
+      # (actions/runner-images#8891, InterceptionFailed, exit 1 with no
+      # output). The build still validates MSVC compilation of the module;
+      # runtime e2e coverage for this crash is provided by the clang-cl and
+      # MinGW jobs plus Linux sanitizers.
       - name: Unit tests
+        if: matrix.cache-name != 'windows-editor-asan'
         env:
           ASAN_OPTIONS: ${{ matrix.env-extra }}
         run: |
