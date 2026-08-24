@@ -434,6 +434,10 @@ def configure_msvc(env: "SConsEnvironment"):
         env.Append(CPPDEFINES=["ASAN_ENABLED"])
         env.Append(CCFLAGS=["/fsanitize=address"])
         env.Append(LINKFLAGS=["/INFERASANLIBS"])
+        # Third-party .obj files (AccessKit, WinPix) reference vc140.pdb which
+        # is never shipped; with werror the LNK4099 warning aborts linking
+        # (LNK1218). The PDB is only needed to debug those objects.
+        env.Append(LINKFLAGS=["/IGNORE:4099"])
 
     ## Libs
 
