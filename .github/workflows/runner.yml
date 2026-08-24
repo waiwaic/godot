@@ -15,7 +15,9 @@ on:
         required: false
 
 concurrency:
-  group: ${{ github.workflow }}|${{ github.ref_name }}
+  # One group per full ref (refs/heads/<branch>): runs for different refs
+  # run in parallel; a new run on the SAME ref supersedes the older one.
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
