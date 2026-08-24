@@ -37,6 +37,7 @@ runs:
         # relative lookups for these files resolve inside godot-cpp. Provide
         # them there too.
         cp extension_api.json gdextension_interface.h godot-cpp/
+        cp extension_api.json godot-cpp/extension_api-4.7.json
 
     - name: SCons Build
       shell: sh
