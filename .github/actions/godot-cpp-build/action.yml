@@ -37,4 +37,13 @@ runs:
       shell: sh
       env:
         SCONS_CACHE: ${{ inputs.scons-cache }}
-      run: scons --directory=./godot-cpp/test "gdextension_dir=${{ github.workspace }}" ${{ inputs.scons-flags }}
+      # The full godot-cpp test build links libgodot-cpp.a from ~1500 objects.
+      # With our module's classes the ar command line exceeds MAX_ARG_STRLEN
+      # (131072) and fails with "Argument list too long" (godot-cpp#1729,
+      # fix PR #1731 still unmerged). A root-level symlink shortens every
+      # object path by ~40 chars, bringing the argv total back under the
+      # limit while keeping the full build (and thus full compatibility
+      # validation) intact.
+      run: |
+        ln -sfn "$PWD/godot-cpp" /gc
+        scons --directory=/gc/test "gdextension_dir=/gc" ${{ inputs.scons-flags }}
