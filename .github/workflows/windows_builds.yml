@@ -51,7 +51,8 @@ jobs:
               debug_symbols=yes
               d3d12=no
               angle=no
-            bin: ./bin/godot.windows.editor.x86_64.exe
+            # .san suffix: use_asan=yes appends it to the binary name.
+            bin: ./bin/godot.windows.editor.x86_64.san.exe
             compiler: msvc
 
           - name: Editor w/ clang-cl (target=editor, use_llvm=yes)
