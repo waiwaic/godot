@@ -60,5 +60,5 @@ runs:
         )
         echo "targets: $TARGETS"
         scons --directory=./godot-cpp "gdextension_dir=${{ github.workspace }}" \
-          ${{ inputs.scons-flags }} platform=linuxbsd target=template_debug dev_build=yes \
+          ${{ inputs.scons-flags }} platform=linux target=template_debug dev_build=yes \
           $TARGETS
