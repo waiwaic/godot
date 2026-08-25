@@ -87,8 +87,11 @@ jobs:
             # .llvm suffix: use_llvm=yes appends it to the binary name.
             bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.llvm.san
             # Upstream godotengine CI runs the full suite green daily; here we
-            # only run the game module cases (the fork's reason to exist).
-            test-filter: "-tc=*Modules*Gameplay*"
+            # only run the game module cases, minus FootballFullMatch: its
+            # 378k-frame SceneTree loop is slowed so much by sanitizer
+            # instrumentation that it exceeds the step timeout (not a
+            # deadlock -- just too heavy to be useful under sanitizers).
+            test-filter: "-tc=*Modules*Gameplay* -tce=*FootballFullMatch*"
             proj-test: true
             free-space: true
 
@@ -117,8 +120,11 @@ jobs:
               linker=lld
             bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
             # Upstream godotengine CI runs the full suite green daily; here we
-            # only run the game module cases (the fork's reason to exist).
-            test-filter: "-tc=*Modules*Gameplay*"
+            # only run the game module cases, minus FootballFullMatch: its
+            # 378k-frame SceneTree loop is slowed so much by sanitizer
+            # instrumentation that it exceeds the step timeout (not a
+            # deadlock -- just too heavy to be useful under sanitizers).
+            test-filter: "-tc=*Modules*Gameplay* -tce=*FootballFullMatch*"
             free-space: true
 
           - name: Template w/ Mono, release (target=template_release)
