@@ -295,7 +295,9 @@ jobs:
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
-          timeout -s ABRT 900 ${{ matrix.bin }} --headless --test --force-colors ${{ matrix.test-filter }}
+          # 1800s: the scoped game suite takes ~15 min under sanitizer
+          # instrumentation; 900s killed it right as the summary printed.
+          timeout -s ABRT 1800 ${{ matrix.bin }} --headless --test --force-colors ${{ matrix.test-filter }}
 
       - name: .NET source generators tests
         if: matrix.build-mono
