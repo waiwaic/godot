@@ -30,17 +30,19 @@ env:
   GODOT_CPP_BRANCH: 4.5
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  ASAN_OPTIONS: color=always:print_suppressions=1:suppressions=${{ github.workspace }}/misc/error_suppressions/asan.txt
+  ASAN_OPTIONS: color=always:print_suppressions=1:suppressions=${{ github.workspace }}/misc/error_suppressions/asan.txt:handle_abort=1:print_stacktrace=1
   LSAN_OPTIONS: color=always:print_suppressions=1:suppressions=${{ github.workspace }}/misc/error_suppressions/lsan.txt
-  TSAN_OPTIONS: color=always:print_suppressions=1:suppressions=${{ github.workspace }}/misc/error_suppressions/tsan.txt
-  UBSAN_OPTIONS: color=always:print_suppressions=1:suppressions=${{ github.workspace }}/misc/error_suppressions/ubsan.txt
+  TSAN_OPTIONS: color=always:print_suppressions=1:suppressions=${{ github.workspace }}/misc/error_suppressions/tsan.txt:handle_abort=1:print_stacktrace=1
+  UBSAN_OPTIONS: color=always:print_suppressions=1:suppressions=${{ github.workspace }}/misc/error_suppressions/ubsan.txt:handle_abort=1:print_stacktrace=1
 
 jobs:
   build-linux:
     # Stay one LTS before latest to increase portability of Linux artifacts.
     runs-on: ubuntu-22.04
     name: ${{ matrix.name }}
-    timeout-minutes: 120
+    # Normal jobs finish in <= 35 min with a warm cache; anything longer means
+    # the test binary hung (see Unit tests step for the per-step guard).
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -79,6 +81,9 @@ jobs:
               linker=lld
             # .llvm suffix: use_llvm=yes appends it to the binary name.
             bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.llvm.san
+            # Upstream godotengine CI runs the full suite green daily; here we
+            # only run the game module cases (the fork's reason to exist).
+            test-filter: "-tc=*Modules*Gameplay*"
             proj-test: true
             free-space: true
 
@@ -106,6 +111,9 @@ jobs:
               use_llvm=yes
               linker=lld
             bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
+            # Upstream godotengine CI runs the full suite green daily; here we
+            # only run the game module cases (the fork's reason to exist).
+            test-filter: "-tc=*Modules*Gameplay*"
             free-space: true
 
           - name: Template w/ Mono, release (target=template_release)
@@ -268,10 +276,15 @@ jobs:
           name: ${{ matrix.cache-name }}
 
       - name: Unit tests
+        # `timeout -s ABRT` kills a hung test binary with SIGABRT so the
+        # sanitizer runtime (handle_abort=1) dumps all thread stacks into the
+        # log before the step dies -- without this a hang produced zero output
+        # and burned the whole job timeout.
+        timeout-minutes: 20
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
-          ${{ matrix.bin }} --headless --test --force-colors ${{ matrix.test-filter }}
+          timeout -s ABRT 900 ${{ matrix.bin }} --headless --test --force-colors ${{ matrix.test-filter }}
 
       - name: .NET source generators tests
         if: matrix.build-mono
