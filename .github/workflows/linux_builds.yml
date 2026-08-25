@@ -291,7 +291,10 @@ jobs:
         # sanitizer runtime (handle_abort=1) dumps all thread stacks into the
         # log before the step dies -- without this a hang produced zero output
         # and burned the whole job timeout.
-        timeout-minutes: 20
+        # Step cap 40 min must exceed that guard (30 min into the test run)
+        # with margin for --version/--help + compile-free startup, yet stay
+        # under the 45 min job cap; it also bounds the full-suite Mono jobs.
+        timeout-minutes: 40
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
