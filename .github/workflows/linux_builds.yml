@@ -21,6 +21,11 @@ on:
         required: false
         type: string
         default: ''
+      changed-files:
+        description: Optional list of changed files for clangd-tidy. Leave empty to skip the style check when dispatching this workflow directly.
+        required: false
+        type: string
+        default: ''
 
 # Global Settings
 env:
@@ -232,7 +237,7 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Style checks via clangd-tidy
-        if: matrix.clangd-tidy
+        if: matrix.clangd-tidy && inputs.changed-files != ''
         uses: ./.github/actions/clangd-tidy
         with:
           changed-files: ${{ inputs.changed-files }}
