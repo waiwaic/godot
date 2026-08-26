@@ -291,15 +291,17 @@ jobs:
         # sanitizer runtime (handle_abort=1) dumps all thread stacks into the
         # log before the step dies -- without this a hang produced zero output
         # and burned the whole job timeout.
-        # Step cap 40 min must exceed that guard (30 min into the test run)
+        # Step cap 44 min must exceed that guard (30 min into the test run)
         # with margin for --version/--help + compile-free startup, yet stay
         # under the 45 min job cap; it also bounds the full-suite Mono jobs.
-        timeout-minutes: 40
+        timeout-minutes: 44
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
-          # 1800s: the scoped game suite takes ~15 min under sanitizer
-          # instrumentation; 900s killed it right as the summary printed.
+          # 1800s: the scoped game suite takes ~18 min under sanitizer
+          # instrumentation on a warm cache and was ABRT-killed mid-suite at
+          # 19 min once on a colder one (2026-08-26); 900s killed it right as
+          # the summary printed. The step cap above absorbs the difference.
           timeout -s ABRT 1800 ${{ matrix.bin }} --headless --test --force-colors ${{ matrix.test-filter }}
 
       - name: .NET source generators tests
