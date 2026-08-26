@@ -1,2 +1,17 @@
 # Supported suppression types are:
 # - leak
+#
+# libfontconfig intentionally holds per-process font configuration data in
+# process-global allocations that are only freed by FcFini() (called from
+# the shared library destructor at process exit). LeakSanitizer scans
+# allocations on the main thread at exit and reports these as direct or
+# indirect leaks. They are a known false positive shared by every Linux
+# binary that loads fontconfig (Chromium, Firefox, Godot, etc. — see
+# http://crbug.com/39050). The Godot Engine starts fontconfig implicitly
+# via FreeType during TextServer initialization, so any Linux build with
+# ASAN's automatic leak detection (detect_leaks=1, the default under
+# -fsanitize=address) reports these two indirect leaks regardless of
+# what the application does. Match libfontconfig so all 256 B and 32 B
+# entries attributed to fontconfig's malloc/calloc entry points vanish
+# from the sanitizer output.
+leak:libfontconfig
