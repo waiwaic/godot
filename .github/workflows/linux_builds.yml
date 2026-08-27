@@ -45,9 +45,12 @@ jobs:
     # Stay one LTS before latest to increase portability of Linux artifacts.
     runs-on: ubuntu-22.04
     name: ${{ matrix.name }}
-    # Normal jobs finish in <= 35 min with a warm cache; anything longer means
-    # the test binary hung (see Unit tests step for the per-step guard).
-    timeout-minutes: 45
+    # Cold build of the ASan+SCU+doubles combination is ~75 min, so the
+    # cap is set above the upstream 45 min to allow the first build on a
+    # fresh fork. Subsequent warm builds finish in well under 40 min; the
+    # Unit tests step has its own per-step guard so a hung test binary
+    # still aborts the job quickly on a non-cold run.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
