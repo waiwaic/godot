@@ -1,2 +1,28 @@
 # Supported suppression types are:
 # - leak
+#
+# Three known false-positive categories from third-party system libraries
+# that the engine loads during editor binary startup (the ASAN job's
+# "Open and close editor (Vulkan/GLES3)" steps) and during doctest
+# process teardown. All three are released by library destructors that
+# run after LeakSanitizer's atexit scan, so LSAN consistently reports
+# them as live allocations even though the engine never took ownership
+# of the memory.
+#
+# 1. libfontconfig holds per-process font configuration data in
+#    process-global allocations that are only freed by FcFini() (called
+#    from the shared library destructor at process exit). A long-standing
+#    false positive shared by every Linux binary that links fontconfig
+#    (http://crbug.com/39050). The Godot Engine starts fontconfig via
+#    FreeType when TextServer initializes.
+# 2. libX11's X Input Method extension allocates per-process structures
+#    the first time XOpenIM is called (via SDL/display init on the
+#    editor binary). Same release ordering as fontconfig.
+# 3. <unknown module> covers allocations inside stripped system
+#    libraries (nss_*.so, libGL.so.1, libdbus-1.so.3, etc.) where LSAN
+#    cannot resolve the call site to a named .so. Chromium's LSAN
+#    suppressions take the same blanket approach
+#    (https://chromium.googlesource.com/chromium/src/+/refs/heads/main/build/sanitizers/lsan_suppressions.cc).
+leak:libfontconfig
+leak:libX11
+leak:<unknown module>
