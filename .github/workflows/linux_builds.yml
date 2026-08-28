@@ -70,25 +70,19 @@ jobs:
             godot-cpp: true
             clangd-tidy: true
 
-          - name: Editor with doubles and GCC sanitizers (target=editor, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, use_llvm=yes, linker=lld)
+          - name: Editor with doubles and GCC sanitizers (target=editor, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, linker=mold)
             cache-name: linux-editor-double-sanitizers
             target: editor
             # Debug symbols disabled as they're huge on this build and we hit the 14 GB limit for runners.
-            # use_llvm=yes + linker=lld (not gcc+mold): the ASan+double+SCU
-            # binary exceeds mold's PC32 relocation range, and gcc can't find
-            # the runner's version-suffixed ld.lld-13. The clang driver locates
-            # lld itself, so use the clang toolchain here.
             scons-flags: >-
               dev_build=yes
               scu_build=yes
               debug_symbols=no
               precision=double
-              use_llvm=yes
               use_asan=yes
               use_ubsan=yes
-              linker=lld
-            # .llvm suffix: use_llvm=yes appends it to the binary name.
-            bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.llvm.san
+              linker=mold
+            bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.san
             # Upstream godotengine CI runs the full suite green daily; here we
             # only run the game module cases, minus the [SceneTree]
             # integration cases: sanitizer instrumentation slows the frame
