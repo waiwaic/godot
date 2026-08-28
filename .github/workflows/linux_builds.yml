@@ -99,8 +99,9 @@ jobs:
             # empty strings...). Upstream never sees the game module's 438
             # classes, but with custom_modules=game they are enumerated too,
             # and their index getters (e.g. CrystalSphereMinigame::get_item)
-            # hit CowData::get's CRASH_BAD_INDEX under dev_build, aborting the
-            # binary with signal 4 (__ubsan_handle_function_type_mismatch).
+            # reach the CRASH_BAD_INDEX in CowData::get under dev_build, which
+            # aborts the binary with signal 4
+            # (__ubsan_handle_function_type_mismatch).
             # That is a private-module robustness issue, not an engine
             # regression, so it must not gate this job. The regression project
             # stays covered by the jobs that build the engine without the
