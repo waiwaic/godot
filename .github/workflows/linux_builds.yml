@@ -317,6 +317,23 @@ jobs:
           # the summary printed. The step cap above absorbs the difference.
           timeout -s ABRT 1800 ${{ matrix.bin }} --headless --test --force-colors ${{ matrix.test-filter }}
 
+      # Integration tests exercise code that needs a real SceneTree (node
+      # lifecycles, _ready-driven construction, tree tick flow). The unit
+      # steps above filter those out (-tce=*[SceneTree]*) because the tree
+      # cases are slow and a subset is flaky under heavy instrumentation, so
+      # they get their own step: scoped by filename, fast, and separately
+      # attributable when it goes red.
+      #
+      # Convention: tests/test_integration_*.cpp are integration tests and
+      # carry the [SceneTree] tag; tests/test_unit_*.cpp must run without a
+      # tree. Keep the count small (one per module: map, football, slay).
+      - name: Integration tests
+        # Short cap: the integration set is a handful of cases, not the
+        # ~1300-case unit suite. A hang is caught by the inner guard.
+        timeout-minutes: 15
+        run: |
+          timeout -s ABRT 600 ${{ matrix.bin }} --headless --test --force-colors -sf=*test_integration_*
+
       - name: .NET source generators tests
         if: matrix.build-mono
         run: |
