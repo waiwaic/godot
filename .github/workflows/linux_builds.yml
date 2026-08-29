@@ -27,6 +27,15 @@ on:
         type: string
         default: ''
 
+# Two runs of the same engine ref and game ref share the SCons CacheDir and
+# ccache pools; running them concurrently corrupts each other's results (one
+# run goes red for no reason of its own). Cancel the older one instead.
+# game-ref is part of the key so validating two different game branches in
+# parallel still works.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.game-ref }}
+  cancel-in-progress: true
+
 # Global Settings
 env:
   SCONS_FLAGS: >-
