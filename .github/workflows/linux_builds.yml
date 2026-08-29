@@ -328,15 +328,20 @@ jobs:
 
       # Integration tests exercise code that needs a real SceneTree (node
       # lifecycles, _ready-driven construction, tree tick flow). The unit
-      # steps above filter those out (-tce=*[SceneTree]*) because the tree
-      # cases are slow and a subset is flaky under heavy instrumentation, so
-      # they get their own step: scoped by filename, fast, and separately
-      # attributable when it goes red.
+      # step above filters those out (-tce=*[SceneTree]*) because the tree
+      # cases are slow, so they get their own step: scoped by filename and
+      # separately attributable when it goes red.
       #
       # Convention: tests/test_integration_*.cpp are integration tests and
       # carry the [SceneTree] tag; tests/test_unit_*.cpp must run without a
       # tree. Keep the count small (one per module: map, football, slay).
+      #
+      # Skipped on the heavy sanitizer jobs: a full-match simulation took
+      # >10 min under ASan/UBSan/doubles and was ABRT-killed by the guard
+      # without finishing (2026-08-30), and the same cases take seconds on
+      # the plain builds. Sanitizers keep their unit coverage.
       - name: Integration tests
+        if: matrix.cache-name != 'linux-editor-double-sanitizers' && matrix.cache-name != 'linux-editor-thread-sanitizer'
         # Short cap: the integration set is a handful of cases, not the
         # ~1300-case unit suite. A hang is caught by the inner guard.
         timeout-minutes: 15
